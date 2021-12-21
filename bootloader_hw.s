@@ -1,25 +1,48 @@
-[BITS 16]
-[ORG 0x7C00]
+org 0x7C00
+bits 16
 
-mov	si, hello_world 
-call	putstr
-jmp	$
+%define ENDL 0x0D, 0x0A
 
-putstr:
-mov	al, [si]
-call	putchar
-inc	si
-test	al, al
-jnz	putstr
-ret
+start:
+    jmp	    main
 
-putchar:
-mov	ah, 0x0E
-mov	bl, 0x07
-mov	bh, 0x00
-int	0x10
-ret
+puts:
+    push    si
+    push    ax
 
-hello_world db 'Hello World!', 0
+.loop:
+    lodsb		    ; loads next char in al
+    or	    al, al
+    jz	    .done
+
+    ; like a write
+    mov ah, 0x0E
+    int 0x10
+
+    jmp	    .loop
+
+.done:
+    pop	    ax
+    pop	    si
+    ret
+
+main:
+    ; setup data segments
+    mov	    ax, 0
+    mov	    ds, ax
+    mov	    es, ax
+
+    ; setup stack
+    mov	    ss, ax
+    mov     sp, 0x7C00
+
+    mov	    si, hello_world 
+    call    puts
+    hlt
+
+.halt:
+    jmp	    .halt
+
+hello_world db 'Hello World!', ENDL, 0
 times	510 - ($ - $$) db 0
 dw	0xAA55
