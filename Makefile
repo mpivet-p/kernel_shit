@@ -1,26 +1,44 @@
-NAME= boot.bin
+BOOTLOADER=bootloader.bin
+KERNEL=kernel.bin
 
-ASM= nasm
-BUILD_DIR= build
-SRC= bootloader_hw.s
+ASM=nasm
 
-.PHONY: all re $(NAME) run fclean clean
+SRC_DIR=srcs/
 
-all: $(BUILD_DIR)/$(NAME)
+BOOTLOADER_PATH= bootloader/
+BOOTLOADER_FILES= bootloader.s
+BOOTLOADER_SRCS= $(addprefix $(SRC_DIR), $(addprefix $(BOOTLOADER_PATH), $(BOOTLOADER_FILES)))
 
-$(BUILD_DIR)/$(NAME): bootloader_hw.s 
-	@mkdir build 2>/dev/null || true
-	$(ASM) $(SRC) -f bin -o $(BUILD_DIR)/$(NAME)
+KERNEL_PATH= kernel/
+KERNEL_FILES= kernel.s
+KERNEL_SRCS= $(addprefix $(SRC_DIR), $(addprefix $(KERNEL_PATH), $(KERNEL_FILES)))
 
-run: $(BUILD_DIR)/$(NAME)
-	cp $(BUILD_DIR)/$(NAME) $(BUILD_DIR)/boot.img
-	truncate -s 1440k $(BUILD_DIR)/boot.img
-	qemu-system-i386 -fda $(BUILD_DIR)/boot.img
+BUILD_DIR=build
+
+.PHONY: all bootloader kernel re run clean
+
+all: bootloader kernel
+
+bootloader: always $(BUILD_DIR)/$(BOOTLOADER)
+kernel: always $(BUILD_DIR)/$(KERNEL)
+
+$(BUILD_DIR)/$(BOOTLOADER): $(BOOTLOADER_SRCS)
+	$(ASM) $(BOOTLOADER_SRCS) -f bin -o $(BUILD_DIR)/$(BOOTLOADER)
+
+$(BUILD_DIR)/$(KERNEL): $(KERNEL_SRCS)
+	$(ASM) $(KERNEL_SRCS) -f bin -o $(BUILD_DIR)/$(KERNEL)
+
+run: all
+	dd if=/dev/zero of=$(BUILD_DIR)/main_floppy.img bs=512 count=2880
+	mkfs.fat -F 12 -n "NBOS" $(BUILD_DIR)/main_floppy.img
+	dd if=$(BUILD_DIR)/$(BOOTLOADER) of=$(BUILD_DIR)/main_floppy.img conv=notrunc
+	mcopy -i $(BUILD_DIR)/main_floppy.img $(BUILD_DIR)/kernel.bin "::kernel.bin"
+	qemu-system-i386 -fda $(BUILD_DIR)/main_floppy.img
 
 re: fclean all
 
-clean:
-	rm -rf $(BUILD_DIR)/$(NAME)
+always:
+	@mkdir -p build
 
-fclean: clean
+clean:
 	rm -rf $(BUILD_DIR)
