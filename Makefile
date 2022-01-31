@@ -24,7 +24,7 @@ bootloader: always $(BUILD_DIR)/$(BOOTLOADER)
 kernel: always $(BUILD_DIR)/$(KERNEL)
 
 $(BUILD_DIR)/$(BOOTLOADER): $(BOOTLOADER_SRCS)
-	$(ASM) $(SRC_DIR)/$(BOOTLOADER_PATH)/bootloader.s -f bin -o $(BUILD_DIR)/$(BOOTLOADER)
+	$(ASM) $(SRC_DIR)/$(BOOTLOADER_PATH)bootloader.s -f bin -o $(BUILD_DIR)/$(BOOTLOADER)
 
 $(BUILD_DIR)/$(KERNEL): $(KERNEL_SRCS)
 	$(ASM) $(KERNEL_SRCS) -f bin -o $(BUILD_DIR)/$(KERNEL)

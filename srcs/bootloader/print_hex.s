@@ -1,15 +1,13 @@
-%define ENDL 0x0D, 0x0A
-
 print_hex:
     push    ax
     push    cx
     push    dx
 
     ;Print 0x
-    mov	    dx, si
+    push    si
     mov	    si, hex_prefix
     call    print_string
-    mov	    si, dx
+    pop	    si
 
     call print_hex_loop
 
@@ -24,16 +22,16 @@ print_hex:
 	ret
 
 print_hex_loop:
-    cmp	    si, 16
-    jl	    phl_end
+    cmp	    si, 0x10
+    jb	    phl_end
 
     ;Div : ax / cx = ax + dx
-    mov	    dx, 0
     mov	    ax, si
-    mov	    cx, 16
-    div	    cx
-    push    dx
+    mov	    dx, si
+    and	    dx, 0x0F
+    shr	    ax, 0x04
     mov	    si, ax
+    push    dx
     call print_hex_loop
     pop	    si
 
