@@ -3,6 +3,7 @@ KERNEL=kernel.bin
 IMG=boot.img
 
 ASM=nasm
+CC=gcc
 
 SRC_DIR=srcs/
 
@@ -11,7 +12,7 @@ BOOTLOADER_FILES= bootloader.s print_hex.s print_string.s
 BOOTLOADER_SRCS= $(addprefix $(SRC_DIR), $(addprefix $(BOOTLOADER_PATH), $(BOOTLOADER_FILES)))
 
 KERNEL_PATH= kernel/
-KERNEL_FILES= kernel.s
+KERNEL_FILES= kernel.c idt.c
 KERNEL_SRCS= $(addprefix $(SRC_DIR), $(addprefix $(KERNEL_PATH), $(KERNEL_FILES)))
 
 BUILD_DIR=build
@@ -27,10 +28,14 @@ $(BUILD_DIR)/$(BOOTLOADER): $(BOOTLOADER_SRCS)
 	$(ASM) $(SRC_DIR)/$(BOOTLOADER_PATH)bootloader.s -f bin -o $(BUILD_DIR)/$(BOOTLOADER)
 
 $(BUILD_DIR)/$(KERNEL): $(KERNEL_SRCS)
-	$(ASM) $(KERNEL_SRCS) -f bin -o $(BUILD_DIR)/$(KERNEL)
+	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/kernel.c -o $(BUILD_DIR)/kernel.o
+	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/idt.c -o $(BUILD_DIR)/idt.o
+	$(ASM) srcs/kernel/kernel_entry.s -f elf -o $(BUILD_DIR)/kernel_entry.o
+	$(ASM) srcs/kernel/idt.asm -f elf -o $(BUILD_DIR)/idt_asm.o
+	ld -m elf_i386 -o $(BUILD_DIR)/$(KERNEL) -Ttext 0x1000 $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt.o $(BUILD_DIR)/idt_asm.o --oformat=binary
 
 run: all
-	cp $(BUILD_DIR)/$(BOOTLOADER) $(BUILD_DIR)/$(IMG)
+	cat $(BUILD_DIR)/$(BOOTLOADER) $(BUILD_DIR)/$(KERNEL) > $(BUILD_DIR)/$(IMG)
 	truncate -s 1440k $(BUILD_DIR)/$(IMG)
 	qemu-system-i386 -drive  file=$(BUILD_DIR)/$(IMG),format=raw
 
@@ -42,7 +47,7 @@ run: all
 #	mcopy -i $(BUILD_DIR)/main_floppy.img $(BUILD_DIR)/kernel.bin "::kernel.bin"
 #	qemu-system-i386 -fda $(BUILD_DIR)/main_floppy.img
 
-re: fclean all
+re: clean run
 
 always:
 	@mkdir -p build

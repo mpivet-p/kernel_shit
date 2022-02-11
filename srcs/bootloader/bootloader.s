@@ -1,53 +1,46 @@
 [org 0x7C00]
 [bits 16]
 
-%define ENDL 0x0D, 0x0A
+KERNEL_OFFSET	equ 0x1000
 
-start:
     mov	    [BOOT_DRIVE], dl
-    jmp	    main
-
-main:
-    call    clear_screen
-    ;mov	    si, hello_world 
-    ;call    print_string
-    ;mov	    ah, 0
-    ;int	    0x16		    ; wait for keypress
-
-    mov	    bp, 0x8000
+    mov	    bp, 0x9000
     mov	    sp, bp
-    mov	    bx, 0x9000
-    mov	    dh, 2
-    mov	    dl, [BOOT_DRIVE]
-    call    disk_load
 
-    cli
-    hlt
+    mov	    si, MSG_REAL_MODE
+    call    print_string
+
+    call    load_kernel
+
+    call    switch_to_pm	; Never returning
+
     jmp	    $
 
-clear_screen:
-    pusha
-    mov	    ax, 0x03  ; text mode 80x25 16 colours
-    int	    0x10
-    popa
-    ret
-
+%include "srcs/bootloader/switch_to_pm.s"
+%include "srcs/bootloader/gdt.s"
 %include "srcs/bootloader/print_string.s"
-%include "srcs/bootloader/print_hex.s"
+%include "srcs/bootloader/print_string_pm.s"
+%include "srcs/bootloader/init_pm.s"
+%include "srcs/bootloader/load_kernel.s"
 %include "srcs/bootloader/disk_load.s"
 
-BOOT_DRIVE db	0
+[bits 32]
 
-hello_world:
-db	"Hello World!", 0
-hex_prefix:
-db	"0x", 0
-newline:
-db	ENDL, 0
+BEGIN_PM:
+    mov	    ebx, MSG_PROT_MODE
+    call    print_string_pm
 
+    call    KERNEL_OFFSET
+
+    jmp	    $
+
+[bits 16]
+; Global variables
+BOOT_DRIVE	db  0
+MSG_REAL_MODE	db  "Started in 16 - bit Real Mode" , 0
+MSG_PROT_MODE	db  "Successfully landed in 32 - bit Protected Mode" , 0
+MSG_LOAD_KERNEL	db  "Loading kernel into memory.." , 0
+
+; Bootsector padding
 times	510 - ($ - $$) db 0
 dw	0xAA55
-
-; To test the disk data
-times 256 dw 0xdada
-times 256 dw 0xface

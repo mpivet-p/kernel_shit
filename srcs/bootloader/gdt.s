@@ -31,5 +31,5 @@ gdt_descriptor:
     dd	    gdt_start			; start address of our gdt
 
 
-CODE_SEG    eq	gdt_code - gdt_start
-DATA_SEG    eq	gdt_data - gdt_start
+CODE_SEG    equ	gdt_code - gdt_start
+DATA_SEG    equ	gdt_data - gdt_start
