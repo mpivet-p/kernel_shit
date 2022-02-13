@@ -37,18 +37,19 @@ common_interrupt_handler:			   ; the common parts of the generic interrupt handl
 	pop	edx
 	pop	ecx
 	pop	ebx
-		pop	 eax
+	pop	 eax
 
 	; restore the esp
 	add	 esp, 8
 
 	; return to the code that got interrupted
 	iret
-  no_error_code_interrupt_handler 0	   ; create handler for interrupt 0
-  no_error_code_interrupt_handler 1	   ; create handler for interrupt 1
-  no_error_code_interrupt_handler 2	   ; create handler for interrupt 2
-  no_error_code_interrupt_handler 3	   ; create handler for interrupt 3
-  no_error_code_interrupt_handler 4	   ; create handler for interrupt 4
-  no_error_code_interrupt_handler 5	   ; create handler for interrupt 5
-  no_error_code_interrupt_handler 6	   ; create handler for interrupt 6
-  error_code_handler			  7	   ; create handler for interrupt 7
+
+no_error_code_interrupt_handler 0	   ; create handler for interrupt 0
+no_error_code_interrupt_handler 1	   ; create handler for interrupt 1
+no_error_code_interrupt_handler 2	   ; create handler for interrupt 2
+no_error_code_interrupt_handler 3	   ; create handler for interrupt 3
+no_error_code_interrupt_handler 4	   ; create handler for interrupt 4
+no_error_code_interrupt_handler 5	   ; create handler for interrupt 5
+no_error_code_interrupt_handler 6	   ; create handler for interrupt 6
+error_code_interrupt_handler    7	   ; create handler for interrupt 7

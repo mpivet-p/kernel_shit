@@ -3,6 +3,7 @@
 #define VGA_HEIGHT	    25
 #define SET_COLOR(f, b, l)  (f << 4) | l << 3 | (b & 0x07)
 #include <stdint.h>
+#include "io.h"
 
 void	clear_line(int y)
 {
@@ -34,19 +35,6 @@ void	write_char(unsigned char c, unsigned char col, int x, int y)
 {
     volatile uint16_t *addr = (volatile uint16_t*)VIDEO_ADDR + (y * 80 + x);
     *addr = c | (col << 8);
-}
-
-static inline void  outb(uint16_t   port, uint8_t val)
-{
-    asm volatile("outb %0, %1" :: "a"(val), "Nd"(port));
-}
-
-static inline uint8_t	inb(uint16_t port)
-{
-    uint8_t ret;
-
-    asm volatile("inb	%1, %0" :"=a"(ret) :"Nd"(port));
-    return (ret);
 }
 
 void	enable_cursor(void)
