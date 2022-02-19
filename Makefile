@@ -32,11 +32,11 @@ $(BUILD_DIR)/$(KERNEL): $(KERNEL_SRCS)
 	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/interrupts.c -o $(BUILD_DIR)/interrupts.o
 	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/io.c -o $(BUILD_DIR)/io.o
 	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/keyboard.c -o $(BUILD_DIR)/keyboard.o
-	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/pic_ack.c -o $(BUILD_DIR)/pick_ack.o
-	$(ASM) srcs/kernel/kernel_entry.s -f elf -o $(BUILD_DIR)/kernel_entry.o
+	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/pic_ack.c -o $(BUILD_DIR)/pic_ack.o
+	#$(ASM) srcs/kernel/kernel_entry.s -f elf -o $(BUILD_DIR)/kernel_entry.o
 	$(ASM) srcs/kernel/load_idt.s -f elf -o $(BUILD_DIR)/load_idt.o
 	$(ASM) srcs/kernel/interrupt_handler.s -f elf -o $(BUILD_DIR)/interrupt_handler.o
-	ld -m elf_i386 -o $(BUILD_DIR)/$(KERNEL) -Ttext 0x1000 $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/interrupts.o $(BUILD_DIR)/io.o $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/pic_ack.o $(BUILD_DIR)/load_idt.o $(BUILD_DIR)/interrupt_handler.o --oformat=binary
+	ld -T link.ld
 
 run: all
 	cat $(BUILD_DIR)/$(BOOTLOADER) $(BUILD_DIR)/$(KERNEL) > $(BUILD_DIR)/$(IMG)
