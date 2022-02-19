@@ -1,5 +1,3 @@
-;Generic Interrupt Handler
-;
 extern interrupt_handler
 
 %macro no_error_code_interrupt_handler 1
@@ -53,3 +51,4 @@ no_error_code_interrupt_handler 4	   ; create handler for interrupt 4
 no_error_code_interrupt_handler 5	   ; create handler for interrupt 5
 no_error_code_interrupt_handler 6	   ; create handler for interrupt 6
 error_code_interrupt_handler    7	   ; create handler for interrupt 7
+error_code_interrupt_handler    33	   ; create handler for interrupt 7

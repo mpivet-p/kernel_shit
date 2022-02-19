@@ -58,7 +58,7 @@ void	set_cursor(uint8_t x, uint8_t y)
     outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
 }
 
-void	main(void)
+void	kmain(void)
 {
     clear_screen();
     enable_cursor();

@@ -1,6 +1,3 @@
-OUTPUT_FORMAT(binary)
-OUTPUT_FORMAT(i386)
-
 ENTRY(kmain)
 
 INPUT
@@ -16,7 +13,7 @@ INPUT
 
 SECTIONS
 {
-    . = 0x1000;
+    . = 0x8000;
 
     .text : ALIGN(0x1000)
     {
@@ -30,7 +27,7 @@ SECTIONS
 
     .rodata : ALIGN(0x1000)
     {
-        *(.rodata)
+        *(.rodata*)
     }
 
     .bss : ALIGN(0x1000)

@@ -28,15 +28,15 @@ $(BUILD_DIR)/$(BOOTLOADER): $(BOOTLOADER_SRCS)
 	$(ASM) $(SRC_DIR)/$(BOOTLOADER_PATH)bootloader.s -f bin -o $(BUILD_DIR)/$(BOOTLOADER)
 
 $(BUILD_DIR)/$(KERNEL): $(KERNEL_SRCS)
-	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/kernel.c -o $(BUILD_DIR)/kernel.o
-	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/interrupts.c -o $(BUILD_DIR)/interrupts.o
-	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/io.c -o $(BUILD_DIR)/io.o
-	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/keyboard.c -o $(BUILD_DIR)/keyboard.o
-	$(CC) -m32 -fno-pie -ffreestanding -c $(SRC_DIR)$(KERNEL_PATH)/pic_ack.c -o $(BUILD_DIR)/pic_ack.o
+	$(CC) -m32 -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -c $(SRC_DIR)$(KERNEL_PATH)/kernel.c -o $(BUILD_DIR)/kernel.o
+	$(CC) -m32 -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -c $(SRC_DIR)$(KERNEL_PATH)/interrupts.c -o $(BUILD_DIR)/interrupts.o
+	$(CC) -m32 -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -c $(SRC_DIR)$(KERNEL_PATH)/io.c -o $(BUILD_DIR)/io.o
+	$(CC) -m32 -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -c $(SRC_DIR)$(KERNEL_PATH)/keyboard.c -o $(BUILD_DIR)/keyboard.o
+	$(CC) -m32 -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs -c $(SRC_DIR)$(KERNEL_PATH)/pic_ack.c -o $(BUILD_DIR)/pic_ack.o
 	#$(ASM) srcs/kernel/kernel_entry.s -f elf -o $(BUILD_DIR)/kernel_entry.o
-	$(ASM) srcs/kernel/load_idt.s -f elf -o $(BUILD_DIR)/load_idt.o
-	$(ASM) srcs/kernel/interrupt_handler.s -f elf -o $(BUILD_DIR)/interrupt_handler.o
-	ld -T link.ld
+	$(ASM) srcs/kernel/load_idt.s -f elf32 -o $(BUILD_DIR)/load_idt.o
+	$(ASM) srcs/kernel/interrupt_handler.s -f elf32 -o $(BUILD_DIR)/interrupt_handler.o
+	ld -T link.ld -melf_i386
 
 run: all
 	cat $(BUILD_DIR)/$(BOOTLOADER) $(BUILD_DIR)/$(KERNEL) > $(BUILD_DIR)/$(IMG)
